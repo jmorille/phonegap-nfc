@@ -481,7 +481,7 @@ var nfc = {
     removeNdefListener: function (callback, win, fail) {
         document.removeEventListener("ndef", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "removeNdef", []);
-    },
+    }, 
     hasHCE: function (win, fail) {
         cordova.exec(win, fail, "NfcPlugin", "hasHCE", []);
     },
@@ -490,6 +490,18 @@ var nfc = {
     },
     getHCEAccount: function (win, fail) {
         cordova.exec(win, fail, "NfcPlugin", "getHCEAccount", []);
+ 
+
+    // APDU
+    connect: function (callback, win, fail) {
+	document.addEventListener("nfc-connected", callback, false);
+        cordova.exec(win, fail, "NfcPlugin", "connect", []);
+    },
+
+    // APDU
+    close: function (callback, win, fail) {
+	document.removeEventListener("nfc-connected", callback, false);
+        cordova.exec(win, fail, "NfcPlugin", "close", []); 
     },
     readMifare: function (block, win, fail) {
       cordova.exec(win, fail, "NfcPlugin", "readMifare", [block]);
