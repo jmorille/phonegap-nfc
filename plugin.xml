@@ -33,18 +33,35 @@
             </feature>
         </config-file>
 
+        <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/AccountStorage.java"
+            target-dir="src/com/chariotsolutions/nfc/plugin"/>
+        <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/CardService.java"
+            target-dir="src/com/chariotsolutions/nfc/plugin"/>
         <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/NfcPlugin.java"
             target-dir="src/com/chariotsolutions/nfc/plugin"/>
         <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/Util.java"
             target-dir="src/com/chariotsolutions/nfc/plugin"/>
+        <source-file src="src/android/res/xml/aid_list.xml" target-dir="res/xml"/>
 
         <!-- kludge for 2.9 support -->
         <source-file src="src/android/org/apache/cordova/api/Dummy.java"
             target-dir="src/org/apache/cordova/api"/>
 
+          <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <service android:name="com.chariotsolutions.nfc.plugin.CardService"
+                 android:exported="true"
+                 android:permission="android.permission.BIND_NFC_SERVICE">
+              <intent-filter>
+                  <action android:name="android.nfc.cardemulation.action.HOST_APDU_SERVICE"/>
+                  <category android:name="android.intent.category.DEFAULT"/>
+              </intent-filter>
+              <meta-data android:name="android.nfc.cardemulation.host_apdu_service" android:resource="@xml/aid_list" />
+            </service>
+        </config-file>
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.NFC"/>
             <uses-feature android:name="android.hardware.nfc" android:required="false"/>
+            <uses-feature android:name="android.hardware.nfc.hce" android:required="false" />
         </config-file>
 
     </platform>

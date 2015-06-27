@@ -481,6 +481,15 @@ var nfc = {
     removeNdefListener: function (callback, win, fail) {
         document.removeEventListener("ndef", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "removeNdef", []);
+    },
+    hasHCE: function (win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "hasHCE", []);
+    },
+    setHCEAccount: function (account, win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "setHCEAccount", [account]);
+    },
+    getHCEAccount: function (win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "getHCEAccount", []);
     }
 
 };

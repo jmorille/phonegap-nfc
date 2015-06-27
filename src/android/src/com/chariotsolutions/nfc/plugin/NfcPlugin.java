@@ -48,6 +48,9 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String HANDOVER = "handover"; // Android Beam
     private static final String STOP_HANDOVER = "stopHandover";
     private static final String ENABLED = "enabled";
+    private static final String HAS_HCE = "hasHCE";
+    private static final String SET_HCE_ACCOUNT = "setHCEAccount";
+    private static final String GET_HCE_ACCOUNT = "getHCEAccount";
     private static final String INIT = "init";
 
     private static final String NDEF = "ndef";
@@ -128,7 +131,18 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
         } else if (action.equalsIgnoreCase(INIT)) {
             init(callbackContext);
-
+        } else if (action.equalsIgnoreCase(HAS_HCE)) {
+            if(CardService.hasHCE()){
+                callbackContext.success();
+            }else{
+                callbackContext.error("your device does not support HCE");
+            }
+        } else if (action.equalsIgnoreCase(SET_HCE_ACCOUNT)) {
+            AccountStorage.setAccount(data.getString(0));
+            callbackContext.success();
+        } else if (action.equalsIgnoreCase(GET_HCE_ACCOUNT)) {
+            String s = AccountStorage.getAccount();
+            callbackContext.success(s);
         } else if (action.equalsIgnoreCase(ENABLED)) {
             // status is checked before every call
             // if code made it here, NFC is enabled
