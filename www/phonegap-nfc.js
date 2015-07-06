@@ -490,7 +490,13 @@ var nfc = {
     },
     getHCEAccount: function (win, fail) {
         cordova.exec(win, fail, "NfcPlugin", "getHCEAccount", []);
-    }
+    },
+    readMifare: function (block, win, fail) {
+      cordova.exec(win, fail, "NfcPlugin", "readMifare", [block]);
+    },
+    writeMifare: function (block, data, win, fail) {
+     cordova.exec(win, fail, "NfcPlugin", "writeMifare", [block, data]);
+   }
 
 };
 

@@ -49,6 +49,18 @@ public class Util {
         return json;
     }
 
+
+    public static String dataToString(byte[] s){
+        int i = 0;
+        for (; i < s.length; i++) {
+            if (s[i] == (byte) 0x0) {
+                break;
+            }
+        }
+        byte[] data = new byte[i];
+        System.arraycopy(s, 0, data, 0, i);
+        return new String(data);
+    }
     static JSONObject tagToJSON(Tag tag) {
         JSONObject json = new JSONObject();
 
@@ -135,6 +147,14 @@ public class Util {
             Log.e(TAG, "Failed to convert ndef record into json: " + record.toString(), e);
         }
         return json;
+    }
+
+    public static String bytesToString(byte[] ary) {
+        final StringBuilder result = new StringBuilder();
+        for (int i = 0; i < ary.length; ++i) {
+            result.append(Character.valueOf((char) ary[i]));
+        }
+        return result.toString();
     }
 
 }

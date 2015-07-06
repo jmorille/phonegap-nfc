@@ -3,6 +3,7 @@ package com.chariotsolutions.nfc.plugin;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,6 +28,8 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.nfc.Tag;
 import android.nfc.TagLostException;
+import android.nfc.tech.MifareClassic;
+import android.nfc.tech.MifareUltralight;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
 import android.os.Parcelable;
@@ -52,6 +55,8 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String SET_HCE_ACCOUNT = "setHCEAccount";
     private static final String GET_HCE_ACCOUNT = "getHCEAccount";
     private static final String INIT = "init";
+    private static final String WRITE_MIFARE ="writeMifare";
+    private static final String READ_MIFARE = "readMifare";
 
     private static final String NDEF = "ndef";
     private static final String NDEF_MIME = "ndef-mime";
@@ -143,6 +148,10 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         } else if (action.equalsIgnoreCase(GET_HCE_ACCOUNT)) {
             String s = AccountStorage.getAccount();
             callbackContext.success(s);
+        } else if (action.equalsIgnoreCase(READ_MIFARE)) {
+            readMifare(data,callbackContext);
+        } else if (action.equalsIgnoreCase(WRITE_MIFARE)) {
+            writeMifare(data, callbackContext);
         } else if (action.equalsIgnoreCase(ENABLED)) {
             // status is checked before every call
             // if code made it here, NFC is enabled
@@ -164,6 +173,73 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             return STATUS_NFC_DISABLED;
         } else {
             return STATUS_NFC_OK;
+        }
+    }
+
+
+    private void readMifare(JSONArray data, CallbackContext callbackContext) throws JSONException {
+        Tag tagFromIntent = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        MifareUltralight mc = MifareUltralight.get(tagFromIntent);
+        String content = "";
+        try {
+            int block = data.getInt(0);
+            mc.connect();
+            byte[] response = mc.readPages(block);
+            content = Util.dataToString(response).trim();
+            callbackContext.success(content);
+        } catch (IOException e) {
+            e.printStackTrace();
+            callbackContext.error(e.getMessage());
+        } finally {
+            try {
+                mc.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                callbackContext.error(e.getMessage());
+            }
+        }
+    }
+
+    private void writeMifare(JSONArray data, CallbackContext callbackContext) throws JSONException {
+        Tag tagFromIntent = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        MifareUltralight mc = MifareUltralight.get(tagFromIntent);
+        try {
+            int block = data.getInt(0);
+            String content = data.getString(1);
+            content = content == null ? "" : content;
+            mc.connect();
+            byte[] bytes = content.getBytes();
+            for (int i = 0; i < 4; i++) {
+                int s = i * 4;
+                int e = i * 4 + 4;
+                if (s > bytes.length){
+                    s = bytes.length;
+                }
+                if (e > bytes.length){
+                    e = bytes.length;
+                }
+                byte[] bs = new byte[]{(byte) 0x0, (byte) 0x0, (byte) 0x0, (byte) 0x0};
+                if(s != e) {
+                   bs = Arrays.copyOfRange(bytes, i * 4, i * 4 + 4);
+                }
+                if (bs.length < 4) {
+                    byte[] t = new byte[]{(byte) 0x0, (byte) 0x0, (byte) 0x0, (byte) 0x0};
+                    System.arraycopy(bs, 0, t, 0, bs.length);
+                    bs = t;
+                }
+                mc.writePage(block+i, bs);
+            }
+            callbackContext.success("OK");
+        } catch (IOException e) {
+            e.printStackTrace();
+            callbackContext.error(e.getMessage());
+        } finally {
+            try {
+                mc.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                callbackContext.error(e.getMessage());
+            }
         }
     }
 
